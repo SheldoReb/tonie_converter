@@ -1,9 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.responses import StreamingResponse, HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
 import sqlite3
 from db_model import DB_PATH
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -11,6 +13,10 @@ def get_db():
         yield conn
     finally:
         conn.close()
+
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/api/status")
 
 @app.get("/api/status")
 def get_status(db=Depends(get_db)):

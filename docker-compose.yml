@@ -8,7 +8,8 @@ services:
       - BACKEND=pipe
       - DEVICE=/fifo/spotout
       - BITRATE=320
-      - VOLUME_NORMALISATION=false
+      - VOLUME_CTRL=fixed
+      - INITIAL_VOLUME=100
     volumes:
       - spotpipe:/fifo
     restart: unless-stopped
