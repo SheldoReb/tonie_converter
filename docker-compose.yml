@@ -25,13 +25,18 @@ services:
       - MONO=1
       - MAX_TONIE_MIN=90
       - UI_PASSWORD=
-      - ALLOW_ORIGINS=
+      - ALLOW_ORIGINS=http://localhost:5173
     volumes:
       - spotpipe:/fifo
       - ./output:/app/output
       - ./db:/app/db
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/status"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
     restart: unless-stopped
   frontend:
     build: 
