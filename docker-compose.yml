@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   app:
-    image: tonie_converter-app:latest
+    image: ghcr.io/sheldoreb/tonie_converter-app:latest
     container_name: tonie_converter
     environment:
       NAME: Tonie-Prepper
