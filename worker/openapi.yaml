@@ -1,7 +1,15 @@
 openapi: 3.0.3
 info:
   title: Tonie Converter API
-  description: API for managing audio conversion sessions and tracks for Tonie boxes
+  description: |
+    API for managing audio conversion sessions and tracks for Tonie boxes.
+    Features include:
+    - Spotify Connect audio recording
+    - Automatic audio processing for Tonie compatibility
+    - Session management and track organization
+    - Live status and logs via SSE
+    - Optional Spotify Web API integration
+    - Optional Prometheus metrics
   version: 1.0.0
 
 servers:
@@ -103,6 +111,91 @@ paths:
                 items:
                   $ref: '#/components/schemas/Track'
 
+  /api/config:
+    get:
+      summary: Get current audio processing configuration
+      responses:
+        200:
+          description: Current configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+    put:
+      summary: Update audio processing configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigUpdate'
+      responses:
+        200:
+          description: Updated configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+
+  /api/logs/stream:
+    get:
+      summary: Stream system logs
+      description: Server-Sent Events stream of system logs
+      responses:
+        200:
+          description: Event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /api/spotify/auth:
+    get:
+      summary: Get Spotify OAuth URL
+      responses:
+        200:
+          description: OAuth URL for Spotify authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+
+  /api/spotify/callback:
+    get:
+      summary: OAuth callback handler
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Authentication successful
+        400:
+          description: Invalid request
+        401:
+          description: Authentication failed
+
+  /metrics:
+    get:
+      summary: Prometheus metrics
+      description: Optional Prometheus-compatible metrics endpoint
+      responses:
+        200:
+          description: Metrics in Prometheus format
+          content:
+            text/plain:
+              schema:
+                type: string
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Track'
+
   /overview:
     get:
       summary: Web interface overview
@@ -143,17 +236,22 @@ components:
           nullable: true
         name:
           type: string
+          description: Album or session name
         artist:
           type: string
         preset:
           type: string
+          enum: [speech, music]
         total_duration_s:
           type: integer
+          description: Total duration in seconds
         lufs_avg:
           type: number
           format: float
+          description: Average LUFS value for the session
         tonie_index:
           type: integer
+          description: For auto-split sessions (1, 2, etc.)
 
     Track:
       type: object
@@ -164,6 +262,7 @@ components:
           type: integer
         idx:
           type: integer
+          description: Track number in session
         title:
           type: string
         artist:
@@ -172,14 +271,18 @@ components:
           type: string
         duration_s:
           type: integer
+          description: Duration in seconds
         lufs:
           type: number
           format: float
+          description: Integrated LUFS measurement
         true_peak:
           type: number
           format: float
+          description: True peak measurement in dBTP
         path:
           type: string
+          description: Relative path in output directory
         created_at:
           type: string
           format: date-time
@@ -203,3 +306,51 @@ components:
         track_id:
           type: integer
           nullable: true
+
+    Config:
+      type: object
+      properties:
+        preset:
+          type: string
+          enum: [speech, music]
+        target_lufs:
+          type: number
+          format: float
+          example: -18.0
+        true_peak:
+          type: number
+          format: float
+          example: -1.0
+        bitrate_k:
+          type: integer
+          example: 96
+        mono:
+          type: boolean
+        max_tonie_min:
+          type: integer
+          example: 90
+        spotify_integration:
+          type: boolean
+          description: Whether Spotify Web API integration is enabled
+        prometheus_metrics:
+          type: boolean
+          description: Whether Prometheus metrics are enabled
+
+    ConfigUpdate:
+      type: object
+      properties:
+        preset:
+          type: string
+          enum: [speech, music]
+        target_lufs:
+          type: number
+          format: float
+        true_peak:
+          type: number
+          format: float
+        bitrate_k:
+          type: integer
+        mono:
+          type: boolean
+        max_tonie_min:
+          type: integer
