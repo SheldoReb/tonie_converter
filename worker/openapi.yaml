@@ -1,0 +1,205 @@
+openapi: 3.0.3
+info:
+  title: Tonie Converter API
+  description: API for managing audio conversion sessions and tracks for Tonie boxes
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /:
+    get:
+      summary: Root endpoint
+      description: Redirects to the status endpoint
+      responses:
+        302:
+          description: Redirect to status page
+          headers:
+            Location:
+              schema:
+                type: string
+                example: /api/status
+
+  /api/status:
+    get:
+      summary: Get system status
+      description: Returns the current state of the converter system
+      responses:
+        200:
+          description: Current system status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                    enum: [idle, processing]
+                    example: idle
+                  current:
+                    type: string
+                    nullable: true
+                  preset:
+                    type: string
+                    example: speech
+                  output_dir:
+                    type: string
+                    example: /app/output
+                  active_session_id:
+                    type: integer
+                    nullable: true
+
+  /api/sessions:
+    get:
+      summary: List all sessions
+      description: Returns a list of all conversion sessions, ordered by start time descending
+      responses:
+        200:
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+
+  /api/sessions/{id}:
+    get:
+      summary: Get session details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Session details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        404:
+          description: Session not found
+
+  /api/tracks:
+    get:
+      summary: Get tracks for a session
+      parameters:
+        - name: session_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of tracks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Track'
+
+  /overview:
+    get:
+      summary: Web interface overview
+      description: Returns an HTML page showing sessions and tracks
+      responses:
+        200:
+          description: HTML overview page
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /api/logs/stream:
+    get:
+      summary: Stream system logs
+      description: Returns a Server-Sent Events stream of system logs
+      responses:
+        200:
+          description: Event stream of logs
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+components:
+  schemas:
+    Session:
+      type: object
+      properties:
+        id:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        name:
+          type: string
+        artist:
+          type: string
+        preset:
+          type: string
+        total_duration_s:
+          type: integer
+        lufs_avg:
+          type: number
+          format: float
+        tonie_index:
+          type: integer
+
+    Track:
+      type: object
+      properties:
+        id:
+          type: integer
+        session_id:
+          type: integer
+        idx:
+          type: integer
+        title:
+          type: string
+        artist:
+          type: string
+        album:
+          type: string
+        duration_s:
+          type: integer
+        lufs:
+          type: number
+          format: float
+        true_peak:
+          type: number
+          format: float
+        path:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        ts:
+          type: string
+          format: date-time
+        level:
+          type: string
+          enum: [INFO, WARNING, ERROR]
+        msg:
+          type: string
+        session_id:
+          type: integer
+          nullable: true
+        track_id:
+          type: integer
+          nullable: true

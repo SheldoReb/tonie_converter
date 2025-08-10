@@ -33,6 +33,19 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+  frontend:
+    build: 
+      context: ./frontend/TonieAudioHub/client
+      dockerfile: Dockerfile
+    container_name: tonie_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8080
+    depends_on:
+      - worker
+    restart: unless-stopped
+
 volumes:
   spotpipe:
     driver: local
