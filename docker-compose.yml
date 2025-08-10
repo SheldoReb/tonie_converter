@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  connect:
+    build: ./connect
+    container_name: tonie_connect
+    environment:
+      - NAME=Tonie-Prepper
+      - BACKEND=pipe
+      - DEVICE=/fifo/spotout
+      - BITRATE=320
+      - VOLUME_NORMALISATION=false
+    volumes:
+      - spotpipe:/fifo
+    restart: unless-stopped
+  worker:
+    build: ./worker
+    container_name: tonie_worker
+    environment:
+      - TZ=Europe/Berlin
+      - PRESET=speech
+      - TARGET_LUFS=-18
+      - TRUE_PEAK=-1.0
+      - BITRATE_K=96
+      - MONO=1
+      - MAX_TONIE_MIN=90
+      - UI_PASSWORD=
+      - ALLOW_ORIGINS=
+    volumes:
+      - spotpipe:/fifo
+      - ./output:/app/output
+      - ./db:/app/db
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+volumes:
+  spotpipe:
+    driver: local

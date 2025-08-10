@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+ffmpeg-python
+mutagen
+jinja2
+sqlite3
