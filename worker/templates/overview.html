@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Tonie Audio Prepper – Übersicht</title>
+</head>
+<body>
+    <h1>Übersicht</h1>
+    <h2>Sessions</h2>
+    <table>
+        <tr><th>Nr.</th><th>Name</th><th>Künstler</th><th>Preset</th><th>Dauer</th></tr>
+        {% for s in sessions %}
+        <tr>
+            <td>{{ s.id }}</td>
+            <td>{{ s.name }}</td>
+            <td>{{ s.artist }}</td>
+            <td>{{ s.preset }}</td>
+            <td>{{ s.total_duration_s }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h2>Tracks</h2>
+    <table>
+        <tr><th>Nr.</th><th>Titel</th><th>Dauer</th><th>LUFS</th><th>True Peak</th><th>Datei</th></tr>
+        {% for t in tracks %}
+        <tr>
+            <td>{{ t.idx }}</td>
+            <td>{{ t.title }}</td>
+            <td>{{ t.duration_s }}</td>
+            <td>{{ t.lufs }}</td>
+            <td>{{ t.true_peak }}</td>
+            <td>{{ t.path }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
