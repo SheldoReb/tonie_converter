@@ -1,7 +1,7 @@
-version: '3.8'
+# version key removed (obsolete)
 services:
   app:
-    image: ghcr.io/sheldoreb/tonie_converter-app:0.1
+    build: .
     container_name: tonie_converter
     environment:
       NAME: Tonie-Prepper

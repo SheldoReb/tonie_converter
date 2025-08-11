@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec librespot \
+exec /usr/local/bin/librespot \
   --name "$NAME" \
   --backend "$BACKEND" \
   --device "$DEVICE" \
