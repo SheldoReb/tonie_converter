@@ -3,6 +3,7 @@ services:
   app:
     build: .
     container_name: tonie_converter
+    network_mode: host
     environment:
       NAME: Tonie-Prepper
       BACKEND: pipe
